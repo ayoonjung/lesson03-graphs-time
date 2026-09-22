@@ -160,3 +160,40 @@ fig4.update_layout(yaxis=dict(autorange="reversed"))
 st.plotly_chart(fig4, use_container_width=True)
 
 st.info("**이 그래프로 알 수 있는 것:** (여기에 이 그래프에서 관찰한 내용을 한 문장으로 적어주세요.)")
+
+st.divider()
+
+# ----------------------------------------------------------------------------
+# 구역 5. 월 x 요일별 일관객 합계 히트맵
+# ----------------------------------------------------------------------------
+st.header("5. 월 x 요일별 일관객 합계")
+
+heatmap_df = df.copy()
+heatmap_df["월"] = heatmap_df["날짜"].dt.month
+weekday_order = ["월", "화", "수", "목", "금", "토", "일"]
+heatmap_df["요일"] = heatmap_df["날짜"].dt.weekday.map(
+    dict(enumerate(weekday_order))
+)
+
+pivot = (
+    heatmap_df.groupby(["요일", "월"])["일관객"]
+    .sum()
+    .unstack("월")
+    .reindex(weekday_order)
+)
+pivot.columns = [f"{m}월" for m in pivot.columns]
+
+fig5 = px.imshow(
+    pivot,
+    color_continuous_scale="Reds",
+    aspect="auto",
+    title="월 x 요일별 일관객 합계",
+    labels={"x": "월", "y": "요일", "color": "일관객 합계"},
+)
+fig5.update_traces(
+    hovertemplate="%{y} · %{x}<br>합계: %{z:,}명<extra></extra>"
+)
+
+st.plotly_chart(fig5, use_container_width=True)
+
+st.info("**이 그래프로 알 수 있는 것:** (여기에 이 그래프에서 관찰한 내용을 한 문장으로 적어주세요.)")
