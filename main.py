@@ -125,3 +125,38 @@ for _, row in top3_days.iterrows():
 st.plotly_chart(fig3, use_container_width=True)
 
 st.info("**이 그래프로 알 수 있는 것:** (여기에 이 그래프에서 관찰한 내용을 한 문장으로 적어주세요.)")
+
+st.divider()
+
+# ----------------------------------------------------------------------------
+# 구역 4. 총 일관객 TOP 10 영화
+# ----------------------------------------------------------------------------
+st.header("4. 총 일관객 TOP 10 영화")
+
+movie_summary = (
+    df.groupby("영화명")
+    .agg(총일관객=("일관객", "sum"), 순위진입일수=("영화명", "count"))
+    .reset_index()
+)
+
+top10_movies = movie_summary.sort_values("총일관객", ascending=False).head(10)
+# 관객이 많은 영화가 위에 오도록 오름차순으로 정렬 후 y축을 뒤집어서 사용
+top10_movies_sorted = top10_movies.sort_values("총일관객", ascending=True)
+
+fig4 = px.bar(
+    top10_movies_sorted,
+    x="총일관객",
+    y="영화명",
+    orientation="h",
+    custom_data=["순위진입일수"],
+    title="총 일관객 TOP 10 영화",
+    labels={"총일관객": "총 일관객 수", "영화명": "영화명"},
+)
+fig4.update_traces(
+    hovertemplate="영화명: %{y}<br>총 일관객: %{x:,}명<br>10위권 진입 일수: %{customdata[0]}일<extra></extra>"
+)
+fig4.update_layout(yaxis=dict(autorange="reversed"))
+
+st.plotly_chart(fig4, use_container_width=True)
+
+st.info("**이 그래프로 알 수 있는 것:** (여기에 이 그래프에서 관찰한 내용을 한 문장으로 적어주세요.)")
